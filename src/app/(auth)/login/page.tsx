@@ -1,8 +1,9 @@
  'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowRight, Building2, CheckCircle2, Eye, EyeOff, LockKeyhole, Mail, ShieldCheck, Sparkles } from 'lucide-react'
+import { toast } from 'react-toastify'
 import api from '../../services/api'
 
 function Login() {
@@ -14,18 +15,30 @@ function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  useEffect(() => {
+    const token = localStorage.getItem("username") || localStorage.getItem("email") || localStorage.getItem("name")
+    if (token) {
+      router.replace('/dashboard')
+    }
+  }, [router])
+
   async function loginFun(e:React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError('')
     try{
-        const res=await api.post('/user/login',{email,password})
-        localStorage.setItem("name",res.data.name)
-        localStorage.setItem("email",res.data.email)
+        const res = await api.post('/user/login', { email, password })
+        const userName = res.data.name || res.data.email || 'Admin'
+        localStorage.setItem("name", res.data.name || userName)
+        localStorage.setItem("email", res.data.email || email)
+        localStorage.setItem("username", userName)
+        toast.success(`Welcome back, ${userName}!`)
         router.push('/dashboard')
     }
     catch(err: any){
-        setError(err.response?.data?.message || 'Unable to sign in. Check your credentials and try again.')
+        const errMsg = err.response?.data?.message || 'Unable to sign in. Check your credentials and try again.'
+        setError(errMsg)
+        toast.error(errMsg)
     } finally {
         setLoading(false)
     }

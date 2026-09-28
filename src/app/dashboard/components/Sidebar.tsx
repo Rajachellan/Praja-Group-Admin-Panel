@@ -6,7 +6,8 @@ import {
   LayoutDashboard, 
   ShieldCheck,
   NotepadText,Contact, BriefcaseBusiness,
-  X
+  X,
+  LogOut
 } from 'lucide-react';
 
 interface NavItem {
@@ -196,6 +197,17 @@ export default function Sidebar({
                 </span>
               </div>
             </div>
+
+            <button
+              onClick={() => {
+                localStorage.clear();
+                window.location.href = '/login';
+              }}
+              title="Logout from Admin Panel"
+              className="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </aside>
