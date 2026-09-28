@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { 
   LayoutDashboard, 
   ShieldCheck,
-  NotepadText,Contact,
+  NotepadText,Contact, BriefcaseBusiness,
   X
 } from 'lucide-react';
 
@@ -39,6 +39,7 @@ export default function Sidebar({
     { id: 'blogs', label: 'Blogs', icon: NotepadText, slug: "/dashboard/blogs" },
     { id: 'leads', label: 'Inquries & Leads', icon: Contact, slug: "/dashboard/leads" },
     { id: 'careers', label: 'Careers', icon: Contact, slug: "/dashboard/careers" },
+    { id: 'jobEnquiry', label: 'Job Applications', icon: BriefcaseBusiness, slug: "/dashboard/jobEnquiry" },
   ];
 
   // const divisions = [
