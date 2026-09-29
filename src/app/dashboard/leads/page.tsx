@@ -24,8 +24,11 @@ interface contactedData {
   email: string;
   message: string;
   phNo: number | string;
-  propertyLocation: string;
-  directorRole: string;
+  propertyLocation?: string;
+  landArea?: string;
+  landOwner?: string;
+  propertyType?: string;
+  directorRole?: string;
   file?: string;
   createdAt?: string;
 }
@@ -65,6 +68,9 @@ function Leads() {
       (item.email && item.email.toLowerCase().includes(q)) ||
       (item.phNo && String(item.phNo).includes(q)) ||
       (item.propertyLocation && item.propertyLocation.toLowerCase().includes(q)) ||
+      (item.landArea && item.landArea.toLowerCase().includes(q)) ||
+      (item.landOwner && item.landOwner.toLowerCase().includes(q)) ||
+      (item.propertyType && item.propertyType.toLowerCase().includes(q)) ||
       (item.directorRole && item.directorRole.toLowerCase().includes(q)) ||
       (item.message && item.message.toLowerCase().includes(q))
     );
@@ -139,6 +145,7 @@ function Leads() {
                 <th className="py-3.5 px-4 font-bold">Client Contact</th>
                 <th className="py-3.5 px-4 font-bold">Phone Number</th>
                 <th className="py-3.5 px-4 font-bold">Property Location</th>
+                <th className="py-3.5 px-4 font-bold">Land Details</th>
                 <th className="py-3.5 px-4 font-bold">Directorate Division</th>
                 <th className="py-3.5 px-4 font-bold">Message Preview</th>
                 <th className="py-3.5 px-4 font-bold">File</th>
@@ -148,7 +155,7 @@ function Leads() {
             <tbody className="divide-y divide-slate-100 font-semibold text-slate-800">
               {filteredDatas.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400">
+                  <td colSpan={9} className="py-12 text-center text-slate-400">
                     <AlertCircle className="w-8 h-8 mx-auto text-slate-300 stroke-1 mb-2" />
                     <p className="text-xs font-bold">
                       {loading ? 'Loading leads from server...' : 'No lead records found.'}
@@ -190,6 +197,15 @@ function Leads() {
                         <MapPin className="w-3.5 h-3.5 text-[#f37924] shrink-0" />
                         <span className="truncate max-w-[150px]">{item.propertyLocation || 'N/A'}</span>
                       </span>
+                    </td>
+
+                    {/* Landowner Enquiry Fields */}
+                    <td className="py-3.5 px-4 font-medium text-slate-700">
+                      <div className="min-w-[150px] space-y-1">
+                        <p><span className="text-slate-400">Type:</span> {item.propertyType || 'N/A'}</p>
+                        <p><span className="text-slate-400">Area:</span> {item.landArea || 'N/A'}</p>
+                        <p><span className="text-slate-400">Owner:</span> {item.landOwner || 'N/A'}</p>
+                      </div>
                     </td>
 
                     {/* Director Role */}
@@ -273,6 +289,18 @@ function Leads() {
               <div className="flex items-center gap-2 text-slate-700 font-semibold">
                 <MapPin className="w-4 h-4 text-emerald-600" />
                 <span>Location: {selectedLead.propertyLocation || 'N/A'}</span>
+              </div>
+              <div className="flex items-center gap-2 text-slate-700 font-semibold">
+                <Building2 className="w-4 h-4 text-[#166534]" />
+                <span>Property type: {selectedLead.propertyType || 'N/A'}</span>
+              </div>
+              <div className="flex items-center gap-2 text-slate-700 font-semibold">
+                <span className="w-4 text-center text-[#166534]">㎡</span>
+                <span>Land area: {selectedLead.landArea || 'N/A'}</span>
+              </div>
+              <div className="flex items-center gap-2 text-slate-700 font-semibold">
+                <Users className="w-4 h-4 text-[#f37924]" />
+                <span>Submitted by: {selectedLead.landOwner || 'N/A'}</span>
               </div>
               <div className="flex items-center gap-2 text-slate-700 font-semibold">
                 <Users className="w-4 h-4 text-[#f37924]" />

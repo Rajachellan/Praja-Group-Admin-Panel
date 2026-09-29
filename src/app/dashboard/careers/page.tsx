@@ -11,6 +11,7 @@ import {
   ListChecks,
   Send,
   Building2,
+  MapPin,
   CheckCircle2,
   X,
   ChevronRight,
@@ -25,6 +26,7 @@ export default function CareersDashboardPage() {
   const [jobName, setJobName] = useState('');
   // const [jobRole, setJobRole] = useState('Civil Engineering');
   const [experience, setExperience] = useState('');
+  const [location, setLocation] = useState('');
   
   // Responsibilities UI list
   const [respInput, setRespInput] = useState('');
@@ -60,8 +62,17 @@ export default function CareersDashboardPage() {
       e.preventDefault()
       try{
 
-        const res=await api.post('/add/job',{jobName,experience,responsibilities,qualifications})
+        const res=await api.post('/add/job',{jobName,experience,location,responsibilities,qualifications})
         alert(res.data.message)
+        if (res.data.success) {
+          setJobName('')
+          setExperience('')
+          setLocation('')
+          setRespInput('')
+          setResponsibilities([])
+          setQualInput('')
+          setQualifications([])
+        }
 
       }
       catch(err){
@@ -147,6 +158,24 @@ export default function CareersDashboardPage() {
                     className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:border-[#166534] focus:bg-white transition-all placeholder:text-slate-400"
                   />
                   <Clock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                </div>
+              </div>
+
+              {/* Job Location */}
+              <div className="space-y-2">
+                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider">
+                  Job Location <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Chennai, Tamil Nadu"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:border-[#166534] focus:bg-white transition-all placeholder:text-slate-400"
+                  />
+                  <MapPin className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 </div>
               </div>
 
@@ -327,6 +356,11 @@ export default function CareersDashboardPage() {
               <Clock className="w-4 h-4" />
               <span>Exp: {experience || '4 - 7 Years'}</span>
             </div>
+          </div>
+
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+            <MapPin className="w-4 h-4 text-[#166534]" />
+            <span>{location || 'Job location'}</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-medium text-slate-700 pt-2">
