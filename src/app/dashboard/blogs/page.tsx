@@ -5,7 +5,7 @@ import { useBlog } from '../../../hooks/useBlog';
 import BlogTable from '../../../components/admin/blogs/BlogTable';
 import BlogPreview from '../../../components/admin/blogs/BlogPreview';
 import { IBlog } from '../../../types/blog';
-import { FileText, Plus, RefreshCw } from 'lucide-react';
+import { BookOpen, FileText, Plus, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 
 export default function BlogAdminPage() {
@@ -33,6 +33,13 @@ export default function BlogAdminPage() {
         </div>
 
         <div className="flex items-center gap-3 z-10 shrink-0">
+          <Link
+            href="/dashboard/blogs/manage"
+            className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs border border-slate-200 transition-all flex items-center gap-2 shadow-xs"
+          >
+            <BookOpen className="w-4 h-4 text-[#166534]" />
+            <span>Uploaded Blogs</span>
+          </Link>
           <button
             onClick={() => fetchBlogs()}
             disabled={loading}

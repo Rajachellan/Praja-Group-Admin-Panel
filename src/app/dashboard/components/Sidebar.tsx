@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { 
   LayoutDashboard, 
   ShieldCheck,
-  NotepadText,Contact, BriefcaseBusiness,
+  NotepadText, Contact, BriefcaseBusiness, BookOpen,
   X,
   LogOut
 } from 'lucide-react';
@@ -38,6 +38,7 @@ export default function Sidebar({
     { id: 'overview', label: 'Dashboard Overview', icon: LayoutDashboard, slug: "/dashboard" },
     // { id: 'inquiries', label: 'Inquiries & Leads', icon: Inbox, badge: newInquiriesCount },
     { id: 'blogs', label: 'Blogs', icon: NotepadText, slug: "/dashboard/blogs" },
+    { id: 'uploaded-blogs', label: 'Uploaded Blogs', icon: BookOpen, slug: "/dashboard/blogs/manage" },
     { id: 'leads', label: 'Inquries & Leads', icon: Contact, slug: "/dashboard/leads" },
     { id: 'careers', label: 'Careers', icon: Contact, slug: "/dashboard/careers" },
     { id: 'jobEnquiry', label: 'Job Applications', icon: BriefcaseBusiness, slug: "/dashboard/jobEnquiry" },
