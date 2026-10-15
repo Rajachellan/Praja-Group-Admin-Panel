@@ -22,7 +22,7 @@ COPY . .
 RUN mkdir -p public
 
 # Next.js requires public env variables at build time
-ARG NEXT_PUBLIC_API_URL=https://www.prajhagroup.com/api
+ARG NEXT_PUBLIC_API_URL=https://api.prajhagroup.com/api
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 
