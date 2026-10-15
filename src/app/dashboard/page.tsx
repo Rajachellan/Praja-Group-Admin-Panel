@@ -828,7 +828,7 @@ export default function DashboardPage({
               <input 
                 type="text" 
                 readOnly
-                value="http://localhost:8000/api"
+                value={process.env.NEXT_PUBLIC_API_URL || "https://www.prajhagroup.com/api"}
                 className="w-full bg-white text-slate-900 text-xs p-3 rounded-xl border border-slate-200 font-mono focus:outline-none"
               />
             </div>
