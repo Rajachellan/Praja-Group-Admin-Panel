@@ -16,6 +16,16 @@ export default function BlogPreview({ blog, onClose, isModal = false }: BlogPrev
   const renderTiptapNode = (node: any, index: number): React.ReactNode => {
     if (!node) return null;
 
+    if (typeof node === 'string') {
+      return (
+        <div 
+          key={index} 
+          className="prose prose-slate max-w-none text-slate-700 leading-relaxed space-y-4 [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:text-slate-900 [&>h2]:mt-6 [&>h3]:text-xl [&>h3]:font-semibold [&>h3]:text-slate-900 [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5 [&>a]:text-[#166534] [&>a]:underline" 
+          dangerouslySetInnerHTML={{ __html: node }} 
+        />
+      );
+    }
+
     if (node.type === 'text') {
       let textContent: React.ReactNode = node.text;
 
