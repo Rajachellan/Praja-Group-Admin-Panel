@@ -29,9 +29,28 @@ function Login() {
     try{
         const res = await api.post('/user/login', { email, password })
         const userName = res.data.name || res.data.email || 'Admin'
+        const userRole = res.data.role || (email.toLowerCase() === 'prajhaconnect@gmail.com' ? 'super-admin' : 'admin')
+        const userStatus = res.data.status || 'active'
+        const userPermissions = res.data.permissions || ['overview', 'blogs', 'uploaded-blogs', 'leads', 'careers', 'jobEnquiry']
+
         localStorage.setItem("name", res.data.name || userName)
         localStorage.setItem("email", res.data.email || email)
         localStorage.setItem("username", userName)
+        localStorage.setItem("role", userRole)
+        localStorage.setItem("status", userStatus)
+        localStorage.setItem("permissions", JSON.stringify(userPermissions))
+        if (res.data.user) {
+          localStorage.setItem("user", JSON.stringify(res.data.user))
+        } else {
+          localStorage.setItem("user", JSON.stringify({
+            name: userName,
+            email: res.data.email || email,
+            role: userRole,
+            status: userStatus,
+            permissions: userPermissions
+          }))
+        }
+
         toast.success(`Welcome back, ${userName}!`)
         router.push('/dashboard')
     }

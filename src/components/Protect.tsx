@@ -17,9 +17,14 @@ export default function Protect({
       localStorage.getItem("username") ||
       localStorage.getItem("email") ||
       localStorage.getItem("name");
+    const status = localStorage.getItem("status");
 
     if (!token) {
       toast.error("Please Login To Access Dashboard");
+      router.replace("/login");
+    } else if (status === "inactive") {
+      localStorage.clear();
+      toast.error("Your account has been deactivated. Please contact an administrator.");
       router.replace("/login");
     } else {
       setAuthorized(true);

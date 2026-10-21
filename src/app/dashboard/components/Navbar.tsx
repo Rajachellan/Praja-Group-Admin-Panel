@@ -23,11 +23,13 @@ export default function Navbar({
 }: NavbarProps) {
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
+  const [role, setRole] = useState<string>('');
 
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
       setName(localStorage.getItem("name") || '');
       setEmail(localStorage.getItem("email") || '');
+      setRole(localStorage.getItem("role") || '');
     }
   }, []);
 
@@ -76,11 +78,20 @@ export default function Navbar({
         {/* User Profile Badge */}
         <div className="flex items-center gap-2.5 pl-2 border-l border-slate-200">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#166534] to-[#f37924] text-white font-extrabold text-xs flex items-center justify-center shadow-xs">
-            PG
+            {name ? name.charAt(0).toUpperCase() : 'PG'}
           </div>
           <div className="hidden xl:flex flex-col">
-            <span className="text-[14px] font-bold text-slate-900 leading-tight">Director Portal</span>
-            <span className="text-[16px] text-[#f37924] font-bold">{name} : {email}</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[13px] font-bold text-slate-900 leading-tight">{name || 'Executive'}</span>
+              <span className={`px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${
+                role === 'super-admin'
+                  ? 'bg-purple-100 text-purple-700 border border-purple-200'
+                  : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+              }`}>
+                {role === 'super-admin' ? 'Super Admin' : (role || 'Admin')}
+              </span>
+            </div>
+            <span className="text-[12px] text-slate-500 font-medium truncate max-w-[200px]">{email}</span>
           </div>
         </div>
       </div>

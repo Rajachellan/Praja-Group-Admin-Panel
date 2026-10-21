@@ -1,14 +1,16 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   LayoutDashboard, 
   ShieldCheck,
   NotepadText, Contact, BriefcaseBusiness, BookOpen,
   X,
-  LogOut
+  LogOut,
+  UserCheck
 } from 'lucide-react';
+import { getUser, hasPermission, AdminUser } from '@/lib/auth';
 
 interface NavItem {
   id: string;
@@ -33,16 +35,28 @@ export default function Sidebar({
   isOpenMobile = false,
   setIsOpenMobile
 }: SidebarProps) {
+  const [currentUser, setCurrentUser] = useState<AdminUser | null>(null);
+
+  useEffect(() => {
+    setCurrentUser(getUser());
+  }, []);
   
-  const navItems: NavItem[] = [
+  const allNavItems: NavItem[] = [
     { id: 'overview', label: 'Dashboard Overview', icon: LayoutDashboard, slug: "/dashboard" },
-    // { id: 'inquiries', label: 'Inquiries & Leads', icon: Inbox, badge: newInquiriesCount },
     { id: 'blogs', label: 'Blogs', icon: NotepadText, slug: "/dashboard/blogs" },
     { id: 'uploaded-blogs', label: 'Uploaded Blogs', icon: BookOpen, slug: "/dashboard/blogs/manage" },
-    { id: 'leads', label: 'Inquries & Leads', icon: Contact, slug: "/dashboard/leads" },
+    { id: 'leads', label: 'Inquiries & Leads', icon: Contact, slug: "/dashboard/leads" },
     { id: 'careers', label: 'Careers', icon: Contact, slug: "/dashboard/careers" },
     { id: 'jobEnquiry', label: 'Job Applications', icon: BriefcaseBusiness, slug: "/dashboard/jobEnquiry" },
+    { id: 'user-access', label: 'User Access & Permissions', icon: ShieldCheck, slug: "/dashboard/user-access" },
   ];
+
+  // Filter based on user RBAC permissions
+  const navItems = allNavItems.filter((item) => {
+    if (!currentUser) return true; // Default show during load
+    if (currentUser.role === 'super-admin') return true;
+    return hasPermission(currentUser, item.id);
+  });
 
   // const divisions = [
   //   { name: 'Business Development', color: 'bg-[#166534]' },
@@ -187,14 +201,16 @@ export default function Sidebar({
         {/* User Info / Footer */}
         <div className="p-4 border-t border-slate-200 bg-slate-50/80">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#166534] to-[#f37924] flex items-center justify-center font-bold text-white text-sm shadow-sm">
-                PG
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#166534] to-[#f37924] flex items-center justify-center font-bold text-white text-xs shadow-xs shrink-0">
+                {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : 'PG'}
               </div>
-              <div className="flex flex-col">
-                <span className="text-xs font-bold text-slate-900">Admin Console</span>
-                <span className="text-[10px] text-[#166534] font-semibold flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live Server API
+              <div className="flex flex-col min-w-0">
+                <span className="text-xs font-bold text-slate-900 truncate">
+                  {currentUser?.name || 'Administrator'}
+                </span>
+                <span className="text-[10px] uppercase font-extrabold tracking-wider text-[#166534] flex items-center gap-1">
+                  {currentUser?.role === 'super-admin' ? 'Super Admin' : (currentUser?.role || 'Admin')}
                 </span>
               </div>
             </div>
@@ -205,7 +221,7 @@ export default function Sidebar({
                 window.location.href = '/login';
               }}
               title="Logout from Admin Panel"
-              className="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+              className="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors shrink-0"
             >
               <LogOut className="w-4 h-4" />
             </button>
