@@ -5,11 +5,15 @@ import {
   AlertCircle,
   Briefcase,
   CalendarDays,
+  ExternalLink,
+  Eye,
+  FileText,
   Mail,
   Phone,
   RefreshCw,
   Search,
   UserRound,
+  X,
 } from 'lucide-react';
 import api from '../../services/api';
 
@@ -24,6 +28,7 @@ interface JobEnquiry {
   email: string;
   phNo: string;
   about: string;
+  resume?: string;
   CareerId: CareerReference | string | null;
   createdAt?: string;
 }
@@ -33,6 +38,7 @@ export default function JobEnquiriesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [selectedEnquiry, setSelectedEnquiry] = useState<JobEnquiry | null>(null);
 
   const getEnquiries = useCallback(async () => {
     setLoading(true);
@@ -76,7 +82,7 @@ export default function JobEnquiriesPage() {
             <span className="text-xs font-bold text-slate-500">{enquiries.length} applications received</span>
           </div>
           <h1 className="text-2xl font-black tracking-tight sm:text-3xl">Job Applications</h1>
-          <p className="mt-1 text-sm text-slate-600">Applications submitted for open positions on the careers page.</p>
+          <p className="mt-1 text-sm text-slate-600">Review applicants, candidate resumes, and submission details.</p>
         </div>
         <button
           type="button"
@@ -124,40 +130,42 @@ export default function JobEnquiriesPage() {
           </div>
         ) : (
           <div className="overflow-x-auto rounded-2xl border border-slate-200">
-            <table className="w-full min-w-[850px] text-left text-sm">
+            <table className="w-full min-w-[950px] text-left text-sm">
               <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                 <tr>
                   <th className="px-4 py-3.5 font-bold">Applicant</th>
                   <th className="px-4 py-3.5 font-bold">Contact</th>
                   <th className="px-4 py-3.5 font-bold">Applied for</th>
+                  <th className="px-4 py-3.5 font-bold">Resume</th>
                   <th className="px-4 py-3.5 font-bold">About applicant</th>
                   <th className="px-4 py-3.5 font-bold">Received</th>
+                  <th className="px-4 py-3.5 font-bold text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filteredEnquiries.map((enquiry) => {
                   const career = typeof enquiry.CareerId === 'object' ? enquiry.CareerId : null;
                   return (
-                    <tr key={enquiry._id} className="align-top transition hover:bg-slate-50/80">
+                    <tr key={enquiry._id} className="align-top transition hover:bg-slate-50/80 group">
                       <td className="px-4 py-4">
-                        <div className="flex items-center gap-2 font-bold text-slate-900">
+                        <div className="flex items-center gap-2 font-bold text-slate-900 group-hover:text-[#166534] transition-colors">
                           <UserRound className="h-4 w-4 shrink-0 text-[#166534]" />
                           {enquiry.name}
                         </div>
                       </td>
                       <td className="space-y-1.5 px-4 py-4 text-slate-600">
-                        <a href={`mailto:${enquiry.email}`} className="flex items-center gap-2 hover:text-[#166534]">
+                        <a href={`mailto:${enquiry.email}`} className="flex items-center gap-2 hover:text-[#166534] transition-colors">
                           <Mail className="h-3.5 w-3.5 shrink-0" />
-                          {enquiry.email}
+                          <span className="text-xs">{enquiry.email}</span>
                         </a>
-                        <a href={`tel:${enquiry.phNo}`} className="flex items-center gap-2 hover:text-[#166534]">
+                        <a href={`tel:${enquiry.phNo}`} className="flex items-center gap-2 hover:text-[#166534] transition-colors">
                           <Phone className="h-3.5 w-3.5 shrink-0" />
-                          {enquiry.phNo}
+                          <span className="text-xs">{enquiry.phNo}</span>
                         </a>
                       </td>
                       <td className="px-4 py-4">
                         {career ? (
-                          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-[#166534]">
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-[#166534] border border-emerald-200/60">
                             <Briefcase className="h-3.5 w-3.5" />
                             {career.jobName}
                           </span>
@@ -165,8 +173,27 @@ export default function JobEnquiriesPage() {
                           <span className="text-xs font-medium text-slate-400">Job posting unavailable</span>
                         )}
                       </td>
-                      <td className="max-w-sm px-4 py-4 text-slate-600">
-                        <p className="line-clamp-3 whitespace-pre-wrap">{enquiry.about}</p>
+                      <td className="px-4 py-4">
+                        {enquiry.resume ? (
+                          <a
+                            href={enquiry.resume}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-[#166534] transition hover:bg-[#166534] hover:text-white"
+                            title="Open Resume"
+                          >
+                            <FileText className="h-3.5 w-3.5 shrink-0" />
+                            <span>View Resume</span>
+                            <ExternalLink className="h-3 w-3 shrink-0 opacity-75" />
+                          </a>
+                        ) : (
+                          <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-400">
+                            Not attached
+                          </span>
+                        )}
+                      </td>
+                      <td className="max-w-xs px-4 py-4 text-slate-600">
+                        <p className="line-clamp-2 text-xs leading-relaxed whitespace-pre-wrap">{enquiry.about}</p>
                       </td>
                       <td className="whitespace-nowrap px-4 py-4 text-xs text-slate-500">
                         {enquiry.createdAt ? (
@@ -176,6 +203,17 @@ export default function JobEnquiriesPage() {
                           </span>
                         ) : '—'}
                       </td>
+                      <td className="px-4 py-4 text-right">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedEnquiry(enquiry)}
+                          className="inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-emerald-50 hover:text-[#166534] transition-colors"
+                          title="View Details"
+                          aria-label="View application details"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
+                      </td>
                     </tr>
                   );
                 })}
@@ -184,6 +222,116 @@ export default function JobEnquiriesPage() {
           </div>
         )}
       </section>
+
+      {/* Applicant Detail Modal */}
+      {selectedEnquiry && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-xs"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setSelectedEnquiry(null);
+          }}
+        >
+          <div className="relative my-auto max-h-[calc(100vh-2rem)] w-full max-w-lg overflow-y-auto rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95">
+            <div className="flex items-start justify-between border-b border-slate-100 pb-4">
+              <div>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#166534]/10 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-[#166534]">
+                  Application Details
+                </span>
+                <h3 className="mt-1 text-xl font-black text-slate-900">{selectedEnquiry.name}</h3>
+                {selectedEnquiry.createdAt && (
+                  <p className="mt-0.5 text-xs text-slate-400">
+                    Applied on {new Date(selectedEnquiry.createdAt).toLocaleString()}
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedEnquiry(null)}
+                className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Target Job Role */}
+            <div className="rounded-2xl border border-emerald-100 bg-[#F0FDF4] p-4">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#166534]">Applied Position</span>
+              <div className="mt-1 flex items-center gap-2 font-bold text-slate-900 text-base">
+                <Briefcase className="h-4 w-4 text-[#166534]" />
+                {typeof selectedEnquiry.CareerId === 'object' && selectedEnquiry.CareerId?.jobName
+                  ? selectedEnquiry.CareerId.jobName
+                  : 'Direct / General Job Enquiry'}
+              </div>
+            </div>
+
+            {/* Applicant Contact Details */}
+            <div className="space-y-2.5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs">
+              <span className="font-bold text-slate-500 uppercase tracking-wider text-[10px]">Contact Information</span>
+              <div className="flex items-center gap-2 font-semibold text-slate-700">
+                <Mail className="h-4 w-4 text-[#F37924] shrink-0" />
+                <a href={`mailto:${selectedEnquiry.email}`} className="hover:text-[#166534] underline">
+                  {selectedEnquiry.email}
+                </a>
+              </div>
+              <div className="flex items-center gap-2 font-semibold text-slate-700">
+                <Phone className="h-4 w-4 text-[#166534] shrink-0" />
+                <a href={`tel:${selectedEnquiry.phNo}`} className="hover:text-[#166534]">
+                  {selectedEnquiry.phNo}
+                </a>
+              </div>
+            </div>
+
+            {/* Resume Card */}
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-slate-700">Resume / CV Document:</span>
+              {selectedEnquiry.resume ? (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#166534] text-white">
+                      <FileText className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-900">Candidate Resume</p>
+                      <p className="text-[11px] text-slate-500">Uploaded via Cloudflare R2 / Server storage</p>
+                    </div>
+                  </div>
+                  <a
+                    href={selectedEnquiry.resume}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-[#166534] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#11532a] shrink-0 shadow-xs"
+                  >
+                    <span>Open Resume</span>
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                </div>
+              ) : (
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-center text-xs font-medium text-slate-400">
+                  No resume file was attached with this application.
+                </div>
+              )}
+            </div>
+
+            {/* Applicant Message / Cover Note */}
+            <div className="space-y-1.5">
+              <span className="text-xs font-bold text-slate-700">About the Applicant:</span>
+              <p className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs leading-relaxed text-slate-800 whitespace-pre-wrap">
+                {selectedEnquiry.about}
+              </p>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => setSelectedEnquiry(null)}
+                className="rounded-xl bg-slate-100 px-5 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-200 transition"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
