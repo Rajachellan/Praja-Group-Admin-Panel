@@ -15,8 +15,12 @@ import {
   X, 
   AlertCircle,
   ExternalLink,
-  Users
+  Users,
+  FileSpreadsheet,
+  FileDown,
+  Download
 } from 'lucide-react';
+import { exportToExcel, exportToPdf } from '@/lib/exportUtils';
 
 interface contactedData {
   _id?: string;
@@ -76,6 +80,62 @@ function Leads() {
     );
   });
 
+  const handleExportExcel = () => {
+    if (filteredDatas.length === 0) return;
+    const exportData = filteredDatas.map((item, idx) => ({
+      'S.No': idx + 1,
+      'Client Name': item.name || '',
+      'Email Address': item.email || '',
+      'Phone Number': item.phNo ? String(item.phNo) : '',
+      'Property Location': item.propertyLocation || 'N/A',
+      'Property Type': item.propertyType || 'N/A',
+      'Land Area': item.landArea || 'N/A',
+      'Land Owner / Agent': item.landOwner || 'N/A',
+      'Directorate Division': item.directorRole || 'N/A',
+      'Message': item.message || '',
+      'Attached File URL': item.file || 'None',
+      'Date Received': item.createdAt ? new Date(item.createdAt).toLocaleString() : 'N/A',
+    }));
+
+    const dateStr = new Date().toISOString().split('T')[0];
+    exportToExcel(exportData, `Prajha_Leads_Report_${dateStr}`, 'Leads');
+  };
+
+  const handleExportPdf = () => {
+    if (filteredDatas.length === 0) return;
+    const columns = [
+      'S.No',
+      'Client Name',
+      'Contact Info',
+      'Property / Location',
+      'Directorate',
+      'Message',
+      'File',
+      'Date',
+    ];
+
+    const rows = filteredDatas.map((item, idx) => [
+      idx + 1,
+      item.name || '',
+      `${item.email || ''}\n${item.phNo ? String(item.phNo) : ''}`,
+      `Location: ${item.propertyLocation || 'N/A'}\nType: ${item.propertyType || 'N/A'}\nArea: ${item.landArea || 'N/A'}`,
+      item.directorRole || 'General Inquiry',
+      (item.message || '').length > 100 ? `${(item.message || '').substring(0, 100)}...` : (item.message || 'N/A'),
+      item.file ? 'Attached' : 'None',
+      item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'N/A',
+    ]);
+
+    const dateStr = new Date().toISOString().split('T')[0];
+    exportToPdf({
+      title: 'Client Inquiries & Leads Directory',
+      subtitle: 'Confidential Client & Landowner Enquiries',
+      fileName: `Prajha_Leads_Report_${dateStr}`,
+      columns,
+      rows,
+      orientation: 'landscape',
+    });
+  };
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12 text-slate-900">
       {/* Header Bar */}
@@ -97,13 +157,35 @@ function Leads() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            type="button"
+            onClick={handleExportExcel}
+            disabled={filteredDatas.length === 0}
+            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white hover:bg-emerald-50/80 text-emerald-800 text-xs font-bold border border-emerald-200 shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:border-emerald-300"
+            title="Download records as Excel (.xlsx)"
+          >
+            <FileSpreadsheet className="w-4 h-4 text-[#166534]" />
+            <span>Export Excel</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleExportPdf}
+            disabled={filteredDatas.length === 0}
+            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white hover:bg-orange-50/80 text-orange-900 text-xs font-bold border border-orange-200 shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:border-orange-300"
+            title="Download records as PDF (.pdf)"
+          >
+            <FileDown className="w-4 h-4 text-[#f37924]" />
+            <span>Export PDF</span>
+          </button>
+
           <button
             onClick={getDatas}
             className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold border border-slate-200 flex items-center gap-2 transition-all shadow-xs"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            <span>Refresh Data</span>
+            <span>Refresh</span>
           </button>
         </div>
       </div>

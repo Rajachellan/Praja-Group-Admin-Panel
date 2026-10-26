@@ -14,8 +14,11 @@ import {
   Search,
   UserRound,
   X,
+  FileSpreadsheet,
+  FileDown,
 } from 'lucide-react';
 import api from '../../services/api';
+import { exportToExcel, exportToPdf } from '@/lib/exportUtils';
 
 interface CareerReference {
   _id: string;
@@ -71,6 +74,66 @@ export default function JobEnquiriesPage() {
     });
   }, [enquiries, searchQuery]);
 
+  const handleExportExcel = () => {
+    if (filteredEnquiries.length === 0) return;
+    const exportData = filteredEnquiries.map((enquiry, idx) => {
+      const jobName = typeof enquiry.CareerId === 'object' && enquiry.CareerId
+        ? enquiry.CareerId.jobName
+        : 'Direct / General Job Enquiry';
+      return {
+        'S.No': idx + 1,
+        'Applicant Name': enquiry.name || '',
+        'Email Address': enquiry.email || '',
+        'Phone Number': enquiry.phNo || '',
+        'Position Applied': jobName,
+        'Resume URL': enquiry.resume || 'None',
+        'About / Cover Note': enquiry.about || '',
+        'Date Applied': enquiry.createdAt ? new Date(enquiry.createdAt).toLocaleString() : 'N/A',
+      };
+    });
+
+    const dateStr = new Date().toISOString().split('T')[0];
+    exportToExcel(exportData, `Prajha_Job_Applications_${dateStr}`, 'Applications');
+  };
+
+  const handleExportPdf = () => {
+    if (filteredEnquiries.length === 0) return;
+    const columns = [
+      'S.No',
+      'Applicant Name',
+      'Contact Info',
+      'Position Applied',
+      'Resume',
+      'Cover Note / Experience',
+      'Date Applied',
+    ];
+
+    const rows = filteredEnquiries.map((enquiry, idx) => {
+      const jobName = typeof enquiry.CareerId === 'object' && enquiry.CareerId
+        ? enquiry.CareerId.jobName
+        : 'General Application';
+      return [
+        idx + 1,
+        enquiry.name || '',
+        `${enquiry.email || ''}\n${enquiry.phNo || ''}`,
+        jobName,
+        enquiry.resume ? 'Attached (View in Portal)' : 'Not attached',
+        (enquiry.about || '').length > 120 ? `${(enquiry.about || '').substring(0, 120)}...` : (enquiry.about || 'N/A'),
+        enquiry.createdAt ? new Date(enquiry.createdAt).toLocaleDateString() : 'N/A',
+      ];
+    });
+
+    const dateStr = new Date().toISOString().split('T')[0];
+    exportToPdf({
+      title: 'Job Applications & Candidate Directory',
+      subtitle: 'Confidential Candidate Applications Report',
+      fileName: `Prajha_Job_Applications_${dateStr}`,
+      columns,
+      rows,
+      orientation: 'landscape',
+    });
+  };
+
   return (
     <main className="mx-auto max-w-7xl space-y-6 pb-12 text-slate-900">
       <header className="flex flex-col justify-between gap-4 rounded-3xl border border-slate-200/90 bg-gradient-to-r from-emerald-50/90 via-white to-orange-50/90 p-6 shadow-xs sm:flex-row sm:items-center">
@@ -84,15 +147,40 @@ export default function JobEnquiriesPage() {
           <h1 className="text-2xl font-black tracking-tight sm:text-3xl">Job Applications</h1>
           <p className="mt-1 text-sm text-slate-600">Review applicants, candidate resumes, and submission details.</p>
         </div>
-        <button
-          type="button"
-          onClick={() => void getEnquiries()}
-          disabled={loading}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 disabled:opacity-60"
-        >
-          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-          Refresh
-        </button>
+
+        <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            type="button"
+            onClick={handleExportExcel}
+            disabled={filteredEnquiries.length === 0}
+            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white hover:bg-emerald-50/80 text-emerald-800 text-xs font-bold border border-emerald-200 shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:border-emerald-300"
+            title="Download applications as Excel (.xlsx)"
+          >
+            <FileSpreadsheet className="w-4 h-4 text-[#166534]" />
+            <span>Export Excel</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleExportPdf}
+            disabled={filteredEnquiries.length === 0}
+            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white hover:bg-orange-50/80 text-orange-900 text-xs font-bold border border-orange-200 shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:border-orange-300"
+            title="Download applications as PDF (.pdf)"
+          >
+            <FileDown className="w-4 h-4 text-[#f37924]" />
+            <span>Export PDF</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => void getEnquiries()}
+            disabled={loading}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 disabled:opacity-60"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+        </div>
       </header>
 
       <section className="space-y-5 rounded-3xl border border-slate-200/90 bg-white p-5 shadow-xs sm:p-6">
