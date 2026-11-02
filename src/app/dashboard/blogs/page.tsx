@@ -108,7 +108,8 @@ export default function BlogsPage() {
     setActiveTab("edit");
   };
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/api\/?$/, "");
+
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -255,9 +256,12 @@ export default function BlogsPage() {
 
       if (image) {
         data.append("image", image);
+      } else if (imagePreview) {
+        data.append("images", imagePreview);
       }
 
       const endpoint = editingId ? `/blogs/${editingId}` : "/blogs";
+
       const result = await (editingId ? api.put(endpoint, data) : api.post(endpoint, data));
 
       if (result.success || result.blog || result.data) {
@@ -625,7 +629,7 @@ export default function BlogsPage() {
             <table className="w-full text-left">
               <thead className="bg-gray-50 text-gray-600 font-semibold text-xs uppercase tracking-wider">
                 <tr>
-                   <th className="px-6 py-4">Title</th>
+                   <th className="px-6 py-4">Article</th>
                    <th className="px-6 py-4">Category</th>
                    <th className="px-6 py-4">Status</th>
                    <th className="px-6 py-4">Date</th>
@@ -633,11 +637,25 @@ export default function BlogsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {blogs.map((blog) => (
+                {blogs.map((blog) => {
+                  const thumb = blog.images || (blog as any).coverImage?.url || (blog as any).featuredImage?.url;
+                  const thumbUrl = thumb ? (thumb.startsWith('http') ? thumb : `${API_BASE_URL}${thumb.startsWith('/') ? '' : '/'}${thumb}`) : null;
+                  return (
                   <tr key={blog._id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4">
-                      <div className="font-medium text-gray-900 line-clamp-1 max-w-xs" title={blog.title}>{blog.title}</div>
-                      <div className="text-xs text-gray-400 mt-0.5 max-w-xs truncate">{blog.metaTitle}</div>
+                      <div className="flex items-center gap-3">
+                        {thumbUrl ? (
+                          <img src={thumbUrl} alt="" className="w-12 h-12 rounded-xl object-cover shrink-0 border border-slate-200" />
+                        ) : (
+                          <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 shrink-0 flex items-center justify-center text-slate-400">
+                            <Upload className="w-5 h-5 opacity-40" />
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <div className="font-medium text-gray-900 line-clamp-1 max-w-xs" title={blog.title}>{blog.title}</div>
+                          <div className="text-xs text-gray-400 mt-0.5 max-w-xs truncate">{blog.metaTitle || blog.slug}</div>
+                        </div>
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <span className="px-2.5 py-1 text-xs font-semibold bg-[#3dbc9b]/10 text-[#166534] rounded-full border border-[#3dbc9b]/20">
@@ -665,8 +683,10 @@ export default function BlogsPage() {
                        </button>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
+
             </table>
           </div>
         )}

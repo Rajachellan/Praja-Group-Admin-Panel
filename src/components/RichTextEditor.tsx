@@ -443,9 +443,109 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
       </div>
 
       {/* Content Area */}
-      <div className="bg-white min-h-[380px]">
+      <div className="bg-white min-h-[380px] editor-content-area">
         <EditorContent editor={editor} />
+        <style jsx global>{`
+          .editor-content-area .ProseMirror {
+            outline: none;
+            padding: 1.25rem;
+            min-height: 380px;
+            font-size: 1rem;
+            line-height: 1.75;
+            color: #334155;
+          }
+          .editor-content-area .ProseMirror h1 {
+            font-size: 2.25rem !important;
+            line-height: 2.5rem !important;
+            font-weight: 800 !important;
+            color: #0f172a !important;
+            margin-top: 1.5rem !important;
+            margin-bottom: 0.75rem !important;
+            display: block !important;
+            letter-spacing: -0.025em !important;
+          }
+          .editor-content-area .ProseMirror h2 {
+            font-size: 1.75rem !important;
+            line-height: 2rem !important;
+            font-weight: 700 !important;
+            color: #0f172a !important;
+            margin-top: 1.25rem !important;
+            margin-bottom: 0.5rem !important;
+            display: block !important;
+            letter-spacing: -0.02em !important;
+          }
+          .editor-content-area .ProseMirror h3 {
+            font-size: 1.35rem !important;
+            line-height: 1.75rem !important;
+            font-weight: 700 !important;
+            color: #1e293b !important;
+            margin-top: 1rem !important;
+            margin-bottom: 0.5rem !important;
+            display: block !important;
+          }
+          .editor-content-area .ProseMirror h4 {
+            font-size: 1.15rem !important;
+            line-height: 1.5rem !important;
+            font-weight: 600 !important;
+            color: #334155 !important;
+            margin-top: 0.75rem !important;
+            margin-bottom: 0.35rem !important;
+            display: block !important;
+          }
+          .editor-content-area .ProseMirror p {
+            margin-bottom: 1rem !important;
+            line-height: 1.75 !important;
+          }
+          .editor-content-area .ProseMirror ul {
+            list-style-type: disc !important;
+            padding-left: 1.5rem !important;
+            margin-bottom: 1rem !important;
+          }
+          .editor-content-area .ProseMirror ol {
+            list-style-type: decimal !important;
+            padding-left: 1.5rem !important;
+            margin-bottom: 1rem !important;
+          }
+          .editor-content-area .ProseMirror li {
+            margin-bottom: 0.25rem !important;
+          }
+          .editor-content-area .ProseMirror blockquote {
+            border-left: 4px solid #3dbc9b !important;
+            background-color: #f0fdf4 !important;
+            padding: 0.75rem 1.25rem !important;
+            border-radius: 0 0.5rem 0.5rem 0 !important;
+            font-style: italic !important;
+            color: #166534 !important;
+            margin: 1.25rem 0 !important;
+          }
+          .editor-content-area .ProseMirror pre {
+            background: #0f172a !important;
+            color: #f8fafc !important;
+            padding: 1rem !important;
+            border-radius: 0.5rem !important;
+            overflow-x: auto !important;
+          }
+          .editor-content-area .ProseMirror code {
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: monospace;
+            font-size: 0.875em;
+          }
+          .editor-content-area .ProseMirror mark {
+            background-color: #fef08a !important;
+            padding: 0.1rem 0.3rem !important;
+            border-radius: 0.25rem !important;
+          }
+          .editor-content-area .ProseMirror hr {
+            border: 0 !important;
+            border-top: 2px solid #e2e8f0 !important;
+            margin: 1.5rem 0 !important;
+          }
+        `}</style>
       </div>
     </div>
   );
 }
+

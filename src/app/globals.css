@@ -130,3 +130,178 @@
   animation: fadeIn 0.25s ease-out forwards;
 }
 
+/* Rich Text Editor & Article Typography (Fixing Tailwind Preflight heading resets) */
+.tiptap,
+.prose {
+  outline: none;
+}
+
+.tiptap h1,
+.prose h1 {
+  font-size: 2.25rem !important;
+  line-height: 2.5rem !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  margin-top: 1.5rem !important;
+  margin-bottom: 0.75rem !important;
+  letter-spacing: -0.025em !important;
+  display: block !important;
+}
+
+.tiptap h2,
+.prose h2 {
+  font-size: 1.75rem !important;
+  line-height: 2rem !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  margin-top: 1.25rem !important;
+  margin-bottom: 0.5rem !important;
+  letter-spacing: -0.02em !important;
+  display: block !important;
+}
+
+.tiptap h3,
+.prose h3 {
+  font-size: 1.35rem !important;
+  line-height: 1.75rem !important;
+  font-weight: 700 !important;
+  color: #1e293b !important;
+  margin-top: 1rem !important;
+  margin-bottom: 0.5rem !important;
+  display: block !important;
+}
+
+.tiptap h4,
+.prose h4 {
+  font-size: 1.15rem !important;
+  line-height: 1.5rem !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+  margin-top: 0.75rem !important;
+  margin-bottom: 0.35rem !important;
+  display: block !important;
+}
+
+.tiptap p,
+.prose p {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: #334155;
+  margin-bottom: 1rem;
+}
+
+.tiptap ul,
+.prose ul {
+  list-style-type: disc !important;
+  padding-left: 1.5rem !important;
+  margin-top: 0.5rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.tiptap ol,
+.prose ol {
+  list-style-type: decimal !important;
+  padding-left: 1.5rem !important;
+  margin-top: 0.5rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.tiptap li,
+.prose li {
+  margin-bottom: 0.25rem;
+  color: #334155;
+}
+
+.tiptap blockquote,
+.prose blockquote {
+  border-left: 4px solid #3dbc9b !important;
+  background-color: #f0fdf4 !important;
+  padding: 0.75rem 1.25rem !important;
+  border-radius: 0 0.75rem 0.75rem 0 !important;
+  font-style: italic !important;
+  color: #166534 !important;
+  margin: 1.25rem 0 !important;
+}
+
+.tiptap pre,
+.prose pre {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  padding: 1rem !important;
+  border-radius: 0.75rem !important;
+  overflow-x: auto !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  font-size: 0.875rem !important;
+  margin: 1rem 0 !important;
+}
+
+.tiptap code,
+.prose code {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.375rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875em;
+  font-weight: 600;
+}
+
+.tiptap mark,
+.prose mark {
+  background-color: #fef08a !important;
+  padding: 0.1rem 0.3rem !important;
+  border-radius: 0.25rem !important;
+}
+
+.tiptap hr,
+.prose hr {
+  border: 0 !important;
+  border-top: 2px solid #e2e8f0 !important;
+  margin: 1.5rem 0 !important;
+}
+
+.tiptap a,
+.prose a {
+  color: #3dbc9b !important;
+  text-decoration: underline !important;
+  font-weight: 600 !important;
+}
+
+.tiptap a:hover,
+.prose a:hover {
+  color: #166534 !important;
+}
+
+.tiptap table,
+.prose table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  margin: 1.25rem 0 !important;
+}
+
+.tiptap th,
+.tiptap td,
+.prose th,
+.prose td {
+  border: 1px solid #cbd5e1 !important;
+  padding: 0.6rem 0.9rem !important;
+  text-align: left !important;
+}
+
+.tiptap th,
+.prose th {
+  background-color: #f8fafc !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+}
+
+.tiptap img,
+.prose img {
+  max-width: 100% !important;
+  height: auto !important;
+  border-radius: 1rem !important;
+  margin: 1.25rem auto !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+}
+
+
