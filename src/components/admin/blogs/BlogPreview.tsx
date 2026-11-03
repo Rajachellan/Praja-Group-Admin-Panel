@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { IBlog, BlogFormData } from '../../../types/blog';
-import { formatDate } from '../../../lib/utils';
-import { Calendar, User, Tag, HelpCircle, Globe, X, Sparkles, CheckCircle2 } from 'lucide-react';
+import { formatDate, parseBlogContent } from '../../../lib/utils';
+import { Calendar, User, Tag, HelpCircle, Globe, X } from 'lucide-react';
 
 interface BlogPreviewProps {
   blog: IBlog | BlogFormData;
@@ -13,8 +13,10 @@ interface BlogPreviewProps {
 
 export default function BlogPreview({ blog, onClose, isModal = false }: BlogPreviewProps) {
   // Helper function to recursively render Tiptap JSON nodes safely into clean React elements
-  const renderTiptapNode = (node: any, index: number): React.ReactNode => {
-    if (!node) return null;
+  const renderTiptapNode = (rawNode: any, index: number): React.ReactNode => {
+    if (!rawNode) return null;
+
+    const node = typeof rawNode === 'string' ? parseBlogContent(rawNode) : rawNode;
 
     if (typeof node === 'string') {
       return (
@@ -130,7 +132,7 @@ export default function BlogPreview({ blog, onClose, isModal = false }: BlogPrev
             {blog.category || 'General'}
           </span>
           <span className="px-3 py-1 bg-amber-50 text-[#f37924] border border-amber-200 rounded-full text-xs font-bold uppercase tracking-wider">
-            Status: {blog.status || 'draft'}
+            Status: {blog.status === 'publish' ? 'published' : (blog.status || 'draft')}
           </span>
         </div>
 
@@ -218,7 +220,7 @@ export default function BlogPreview({ blog, onClose, isModal = false }: BlogPrev
             <img src={blog.seo?.ogImage || blog.featuredImage?.url} alt="OG Preview" className="w-full h-44 object-cover" />
           ) : null}
           <div className="p-4 space-y-1">
-            <span className="text-[10px] uppercase font-bold text-slate-400">prajhagroups.com</span>
+            <span className="text-[10px] uppercase font-bold text-slate-400">www.prajhagroup.com</span>
             <h5 className="font-extrabold text-sm text-slate-900 line-clamp-1">{blog.seo?.ogTitle || blog.title}</h5>
             <p className="text-xs text-slate-600 line-clamp-2">{blog.seo?.ogDescription || blog.excerpt}</p>
           </div>

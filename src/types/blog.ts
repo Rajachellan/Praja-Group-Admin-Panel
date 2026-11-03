@@ -24,7 +24,7 @@ export interface ISEO {
   ogImage?: string;
 }
 
-export type BlogStatus = 'draft' | 'published' | 'scheduled';
+export type BlogStatus = 'draft' | 'published' | 'publish' | 'private' | 'scheduled';
 
 export interface IBlog {
   _id: string;
@@ -34,7 +34,10 @@ export interface IBlog {
   featuredImage?: IBlogImage;
   coverImage?: IBlogImage;
   mainImage?: IBlogImage;
-  content: any; // Tiptap JSON Document
+  images?: string;
+  metaTitle?: string;
+  metaDesc?: string;
+  content: any; // Tiptap JSON Document or HTML string
   category: string;
   tags: string[];
   author: IAuthor;

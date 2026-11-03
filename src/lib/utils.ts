@@ -24,3 +24,32 @@ export function formatDate(dateString?: string): string {
     return dateString;
   }
 }
+
+export function parseBlogContent(rawContent: any): any {
+  if (!rawContent) return rawContent;
+  if (typeof rawContent === 'object') return rawContent;
+  if (typeof rawContent === 'string') {
+    const trimmed = rawContent.trim();
+    const match = trimmed.match(/^(?:<p[^>]*>\s*)?(\{\s*(?:&quot;|")type(?:&quot;|")\s*:\s*(?:&quot;|")doc(?:&quot;|")[\s\S]*\})(?:\s*<\/p>)?$/i);
+    if (match) {
+      try {
+        const parsed = JSON.parse(match[1]);
+        if (parsed && parsed.type === 'doc') return parsed;
+      } catch {
+        try {
+          const decoded = match[1]
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;|&apos;/g, "'")
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&amp;/g, '&');
+          const parsed = JSON.parse(decoded);
+          if (parsed && parsed.type === 'doc') return parsed;
+        } catch {
+          // Keep original HTML string if not valid Tiptap JSON
+        }
+      }
+    }
+  }
+  return rawContent;
+}

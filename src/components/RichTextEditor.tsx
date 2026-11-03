@@ -14,6 +14,7 @@ import { TableCell } from '@tiptap/extension-table-cell';
 import { TableHeader } from '@tiptap/extension-table-header';
 import { TaskList } from '@tiptap/extension-task-list';
 import { TaskItem } from '@tiptap/extension-task-item';
+import { parseBlogContent } from '../lib/utils';
 import {
   Bold,
   Italic,
@@ -43,7 +44,7 @@ import {
 } from 'lucide-react';
 
 interface RichTextEditorProps {
-  value: string;
+  value: any;
   onChange: (value: string) => void;
   placeholder?: string;
 }
@@ -101,7 +102,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
         }
       })
     ],
-    content: value || '',
+    content: parseBlogContent(value) || '',
     editorProps: {
       attributes: {
         class:
@@ -121,12 +122,25 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
   // Sync external value changes (e.g. templates, edit button, clear button)
   useEffect(() => {
     if (editor && !isUpdatingRef.current) {
-      const currentHtml = editor.getHTML();
-      if ((value || '') !== currentHtml && !(value === '' && currentHtml === '<p></p>')) {
-        editor.commands.setContent(value || '');
+      const normalized = parseBlogContent(value);
+      if (normalized && typeof normalized === 'object') {
+        if (JSON.stringify(editor.getJSON()) !== JSON.stringify(normalized)) {
+          isUpdatingRef.current = true;
+          editor.commands.setContent(normalized);
+          onChange(editor.getHTML());
+          setTimeout(() => {
+            isUpdatingRef.current = false;
+          }, 0);
+        }
+      } else {
+        const strVal = typeof normalized === 'string' ? normalized : '';
+        const currentHtml = editor.getHTML();
+        if (strVal !== currentHtml && !(strVal === '' && currentHtml === '<p></p>')) {
+          editor.commands.setContent(strVal);
+        }
       }
     }
-  }, [value, editor]);
+  }, [value, editor, onChange]);
 
   if (!editor) {
     return (
@@ -548,4 +562,3 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
     </div>
   );
 }
-

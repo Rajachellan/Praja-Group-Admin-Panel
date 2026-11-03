@@ -20,6 +20,8 @@ import BlogPreview from '../../../../components/admin/blogs/BlogPreview';
 import { formatDate } from '../../../../lib/utils';
 import { IBlog } from '../../../../types/blog';
 
+const isPublishedStatus = (status?: string) => status === 'published' || status === 'publish';
+
 export default function ManageUploadedBlogsPage() {
   const { blogs, loading, error, fetchBlogs, deleteBlog } = useBlog();
   const [searchQuery, setSearchQuery] = useState('');
@@ -43,7 +45,10 @@ export default function ManageUploadedBlogsPage() {
         blog.category,
         ...(blog.tags || []),
       ].some((value) => value?.toLowerCase().includes(query));
-      return matchesSearch && (statusFilter === 'all' || blog.status === statusFilter);
+      const matchesStatus =
+        statusFilter === 'all' ||
+        (statusFilter === 'published' ? isPublishedStatus(blog.status) : blog.status === statusFilter);
+      return matchesSearch && matchesStatus;
     });
   }, [blogs, searchQuery, statusFilter]);
 
@@ -62,6 +67,7 @@ export default function ManageUploadedBlogsPage() {
 
   const statusStyles: Record<string, string> = {
     published: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+    publish: 'bg-emerald-50 text-emerald-800 border-emerald-200',
     draft: 'bg-slate-100 text-slate-700 border-slate-200',
     scheduled: 'bg-amber-50 text-amber-800 border-amber-200',
   };
@@ -104,7 +110,7 @@ export default function ManageUploadedBlogsPage() {
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
           { label: 'All articles', value: blogs.length, tone: 'text-slate-900' },
-          { label: 'Published', value: blogs.filter((blog) => blog.status === 'published').length, tone: 'text-emerald-800' },
+          { label: 'Published', value: blogs.filter((blog) => isPublishedStatus(blog.status)).length, tone: 'text-emerald-800' },
           { label: 'Drafts', value: blogs.filter((blog) => blog.status === 'draft').length, tone: 'text-slate-600' },
           { label: 'Scheduled', value: blogs.filter((blog) => blog.status === 'scheduled').length, tone: 'text-amber-700' },
         ].map((stat) => (
@@ -175,7 +181,7 @@ export default function ManageUploadedBlogsPage() {
                     <div className="flex h-full items-center justify-center text-slate-300"><FileText className="h-10 w-10" /></div>
                   )}
                   <span className={`absolute left-3 top-3 rounded-full border px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide ${statusStyles[blog.status] || statusStyles.draft}`}>
-                    {blog.status}
+                    {isPublishedStatus(blog.status) ? 'published' : blog.status}
                   </span>
                 </div>
                 <div className="flex flex-1 flex-col p-5">
@@ -187,9 +193,9 @@ export default function ManageUploadedBlogsPage() {
                   </div>
                   <h2 className="mt-3 line-clamp-2 text-lg font-extrabold leading-snug text-slate-900">{blog.title}</h2>
                   <p className="mt-2 line-clamp-3 flex-1 text-sm leading-relaxed text-slate-600">
-                    {blog.excerpt || 'No excerpt has been added to this article.'}
+                    {blog.excerpt || blog.metaDesc || blog.seo?.description || 'No excerpt has been added to this article.'}
                   </p>
-                  <p className="mt-3 truncate font-mono text-[11px] text-slate-400">/blog/{blog.slug}</p>
+                  <p className="mt-3 truncate font-mono text-[11px] text-slate-400">/blogs/{blog.slug}</p>
                   <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-4">
                     <button
                       type="button"

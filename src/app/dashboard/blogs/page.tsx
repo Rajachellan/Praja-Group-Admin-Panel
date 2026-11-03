@@ -3,23 +3,27 @@
 import { useState, useRef, useEffect } from "react";
 import RichTextEditor from "../../components/RichTextEditor";
 import { Upload, X, Plus, Info } from "lucide-react";
-import { api } from "@/lib/api";
+import { api, getApiBaseUrl } from "@/lib/api";
+import { parseBlogContent } from "@/lib/utils";
 
 const CATEGORIES = [
-  "Digital Marketing",
-  "Digital Marketing Service",
-  "Web Services",
-  "Branding",
-  "Video Productions",
-  "Extended Reality",
-  "AI Services",
-  "Software Development",
-  "React JS Development Company",
+  "Construction",
+  "Developer",
+  "Land Owner",
+  "Associate Directors",
+  "Investors",
+  "Careers",
+  "Corporate News",
+  "General",
   "Real Estate & Development",
   "Infrastructure & Construction",
 ];
 
-const STATUS_OPTIONS = ["draft", "publish", "private"];
+const STATUS_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: "draft", label: "Draft" },
+  { value: "published", label: "Publish" },
+  { value: "private", label: "Private" },
+];
 
 const generateSlug = (text: string) =>
   text
@@ -40,7 +44,7 @@ interface Blog {
   createdAt: string;
   images?: string;
   metaTitle: string;
-  content?: string;
+  content?: any;
   metaDesc?: string;
   tags?: string[];
   keywords?: string[];
@@ -54,11 +58,11 @@ export default function BlogsPage() {
     category: CATEGORIES[0],
     metaTitle: "",
     metaDesc: "",
-    status: "publish",
+    status: "published",
   });
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
 
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState<any>("");
   const [tags, setTags] = useState<string[]>([]);
   const [keywords, setKeywords] = useState<string[]>([]);
   const [focusKeywords, setFocusKeywords] = useState<string[]>([]);
@@ -101,15 +105,15 @@ export default function BlogsPage() {
   };
 
   const applyTemplate = (templateHtml: string) => {
-    if (content.trim() && content !== "<p></p>") {
+    const hasContent = typeof content === "string" ? (content.trim() && content !== "<p></p>") : Boolean(content);
+    if (hasContent) {
       if (!window.confirm("This will replace your current content. Continue?")) return;
     }
     setContent(templateHtml);
     setActiveTab("edit");
   };
 
-  const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/api\/?$/, "");
-
+  const API_BASE_URL = getApiBaseUrl().replace(/\/api\/?$/, "");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -188,28 +192,23 @@ export default function BlogsPage() {
   const handleEdit = (blog: Blog) => {
     setEditingId(blog._id);
     setSlugManuallyEdited(true);
+    const normalizedStatus = blog.status === "publish" ? "published" : (blog.status || "published");
     setFormData({
       title: blog.title || "",
       slug: blog.slug || "",
       category: blog.category || CATEGORIES[0],
       metaTitle: blog.metaTitle || (blog as any).seo?.title || "",
       metaDesc: blog.metaDesc || (blog as any).seo?.description || (blog as any).excerpt || "",
-      status: blog.status === "published" ? "publish" : (blog.status || "publish"),
+      status: normalizedStatus,
     });
-    
-    let parsedContent = "";
-    if (typeof blog.content === "string") {
-      parsedContent = blog.content;
-    } else if (blog.content) {
-      parsedContent = JSON.stringify(blog.content);
-    }
-    setContent(parsedContent);
+
+    setContent(parseBlogContent(blog.content) || "");
 
     setTags(blog.tags || []);
     setKeywords(blog.keywords || (blog as any).seo?.keywords || []);
     setFocusKeywords(blog.focusKeyword || []);
     const imgUrl = blog.images || (blog as any).coverImage?.url || (blog as any).featuredImage?.url;
-    setImagePreview(imgUrl ? (imgUrl.startsWith("http") ? imgUrl : `${API_BASE_URL}${imgUrl}`) : null);
+    setImagePreview(imgUrl ? (imgUrl.startsWith("http") ? imgUrl : `${API_BASE_URL}${imgUrl.startsWith("/") ? "" : "/"}${imgUrl}`) : null);
     setImage(null);
     setActiveTab("edit");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -224,7 +223,7 @@ export default function BlogsPage() {
       category: CATEGORIES[0],
       metaTitle: "",
       metaDesc: "",
-      status: "publish",
+      status: "published",
     });
     setContent("");
     setTags([]);
@@ -242,13 +241,22 @@ export default function BlogsPage() {
 
     try {
       const data = new FormData();
+      const serializedContent =
+        typeof content === "string"
+          ? content
+          : content
+          ? JSON.stringify(content)
+          : "";
+      const finalStatus = formData.status === "publish" ? "published" : formData.status;
+
       data.append("title", formData.title);
       data.append("slug", formData.slug || generateSlug(formData.title));
       data.append("category", formData.category);
-      data.append("content", content);
+      data.append("content", serializedContent);
       data.append("metaTitle", formData.metaTitle);
       data.append("metaDesc", formData.metaDesc);
-      data.append("status", formData.status);
+      data.append("excerpt", formData.metaDesc);
+      data.append("status", finalStatus);
       
       tags.forEach(tag => data.append("tags[]", tag));
       keywords.forEach(kw => data.append("keywords[]", kw));
@@ -277,6 +285,10 @@ export default function BlogsPage() {
       setLoading(false);
     }
   };
+
+  const categoryOptions = CATEGORIES.includes(formData.category)
+    ? CATEGORIES
+    : [formData.category, ...CATEGORIES];
 
   return (
     <div className="max-w-7xl mx-auto pb-12 animate-fadeIn selection:bg-[#3dbc9b]/30">
@@ -398,7 +410,7 @@ export default function BlogsPage() {
                   </div>
                   {formData.slug && (
                     <p className="mt-1.5 text-xs text-gray-400">
-                      Preview: <span className="text-gray-600 font-medium">prajhagroups.com/blogs/{formData.slug}</span>
+                      Preview: <span className="text-gray-600 font-medium">www.prajhagroup.com/blogs/{formData.slug}/</span>
                     </p>
                   )}
                 </div>
@@ -441,7 +453,12 @@ export default function BlogsPage() {
                   prose-a:text-[#3dbc9b] prose-a:font-bold prose-a:no-underline hover:prose-a:underline
                   prose-img:rounded-2xl prose-img:shadow-lg
                   prose-blockquote:border-l-4 prose-blockquote:border-[#3dbc9b] prose-blockquote:bg-emerald-50 prose-blockquote:p-4 prose-blockquote:rounded-r-xl prose-blockquote:text-[#166534] prose-blockquote:italic"
-                  dangerouslySetInnerHTML={{ __html: content || "<p class='text-gray-400 italic'>No content written yet...</p>" }}
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      typeof content === "string" && content
+                        ? content
+                        : "<p class='text-gray-400 italic'>No content written yet...</p>",
+                  }}
                 />
               </div>
             )}
@@ -522,7 +539,7 @@ export default function BlogsPage() {
                 className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3dbc9b] outline-none appearance-none bg-no-repeat bg-[right_1rem_center] transition-all text-gray-900 cursor-pointer"
                 style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundSize: '1.25rem' }}
               >
-                {CATEGORIES.map(cat => (
+                {categoryOptions.map(cat => (
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>
@@ -533,12 +550,12 @@ export default function BlogsPage() {
               <div className="flex gap-2 p-1 bg-gray-50 rounded-lg">
                 {STATUS_OPTIONS.map(opt => (
                   <button
-                    key={opt}
+                    key={opt.value}
                     type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, status: opt }))}
-                    className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all capitalize cursor-pointer ${formData.status === opt ? 'bg-white text-[#3dbc9b] shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                    onClick={() => setFormData(prev => ({ ...prev, status: opt.value }))}
+                    className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all capitalize cursor-pointer ${formData.status === opt.value ? 'bg-white text-[#3dbc9b] shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                   >
-                    {opt}
+                    {opt.label}
                   </button>
                 ))}
               </div>
